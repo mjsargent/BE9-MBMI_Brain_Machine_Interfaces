@@ -24,8 +24,12 @@ XTrain = cell(size(intermediate, 3), 1);
 YTrain = cell(size(intermediate, 3), 1);
 
 for i = 1:size(intermediate, 3)
-    XTrain{i} = intermediate{2, :, i};
-    YTrain{i} = intermediate{3, :, i};
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain{i} = [];
+    XTrain{i} = tempX(:,1:end-1);
+    YTrain{i} = [];
+    YTrain{i} = tempY(1:2,2:end);
 end
 
 intermediate = struct2cell(reshape(testData, 1, numTest * 8));
@@ -34,38 +38,58 @@ XTest = cell(size(intermediate, 3), 1);
 YTest = cell(size(intermediate, 3), 1);
 
 for i = 1:size(intermediate, 3)
-    XTest{i} = intermediate{2, :, i};
-    YTest{i} = intermediate{3, :, i};
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTest{i} = [];
+    XTest{i} = tempX(:,1:end-1);
+    YTest{i} = [];
+    YTest{i} = tempY(1:2,2:end);
 end
 
 %%  
 
 inDim = 98;
-hiddenUnits = 100;
+hiddenUnits1 = 100;
+hiddenUnits2 = 75;
 fullyConnected = 50;
-dropout = 0.2;
-outDim = 3;
+dropout = 0.1;
+outDim = 2;
 
 layers = [ ...
     sequenceInputLayer(inDim)
-    lstmLayer(hiddenUnits,'OutputMode','sequence')
+    lstmLayer(hiddenUnits1,'OutputMode','sequence')
+   % lstmLayer(hiddenUnits2,'OutputMode','sequence')
     fullyConnectedLayer(fullyConnected)
     dropoutLayer(dropout)
     fullyConnectedLayer(outDim)
     regressionLayer];
 
-maxEpochs = 60;
+maxEpochs = 200;
 miniBatchSize = 20;
 
 options = trainingOptions('adam', ...
     'MaxEpochs',maxEpochs, ...
+    'GradientThreshold', 1, ...
     'MiniBatchSize',miniBatchSize, ...
     'InitialLearnRate',0.01, ...
-    'GradientThreshold',1, ...
-    'Shuffle','never', ...
+    'LearnRateDropPeriod',150, ...
+    'LearnRateDropFactor',0.1, ...
     'Plots','training-progress',...
     'Verbose',0);
 
 net = trainNetwork(XTrain, YTrain, layers, options);
 
 YPred = predict(net, XTest, 'MiniBatchSize', 1);
+
+%%
+figure
+plot(YTest{1}(1,:), YTest{1}(2,:))
+hold on
+plot(YPred{1}(1,:),YPred{1}(2,:))
+legend('Actual', 'Predicted')
+
+figure
+plot(YTest{2}(1,:), YTest{2}(2,:))
+hold on
+plot(YPred{2}(1,:),YPred{2}(2,:))
+legend('Actual', 'Predicted')
