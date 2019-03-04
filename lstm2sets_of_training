@@ -1,0 +1,132 @@
+clear all; close all
+clc
+
+%% prepare training data
+load('monkeydata_training.mat');
+
+% set random number generator
+rng(2013);
+
+%% shuffle the data
+ix = randperm(length(trial));
+
+%% split into train and test sets
+trainTestSplit = 0.8;
+trainTestSplit2 = 0.7;
+numTrain = trainTestSplit2 * length(trial);
+numTest = length(trial)-trainTestSplit * length(trial);
+
+trainingData1 = trial(ix(1:numTrain),:);
+trainingData2 = trial(ix(11:numTrain+10),:);
+testData = trial(ix(numTrain+11:end),:);
+
+%% training 1
+intermediate = struct2cell(reshape(trainingData1, 1, numTrain * 8));
+XTrain1 = cell(size(intermediate, 3), 1);
+YTrain1 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain1{i} = [];
+    XTrain1{i} = tempX(:,1:end-1);
+    YTrain1{i} = [];
+    YTrain1{i} = tempY(1:2,2:end);
+end
+
+% training 2
+intermediate = struct2cell(reshape(trainingData2, 1, numTrain * 8));
+XTrain2 = cell(size(intermediate, 3), 1);
+YTrain2 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain2{i} = [];
+    XTrain2{i} = tempX(:,1:end-1);
+    YTrain2{i} = [];
+    YTrain2{i} = tempY(1:2,2:end);
+end
+
+%%
+intermediate = struct2cell(reshape(testData, 1, numTest * 8));
+
+XTest = cell(size(intermediate, 3), 1);
+YTest = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTest{i} = [];
+    XTest{i} = tempX(:,1:end-1);
+    YTest{i} = [];
+    YTest{i} = tempY(1:2,2:end);
+end
+
+%%  
+
+inDim = 98;
+hiddenUnits1 = 100;
+hiddenUnits2 = 75;
+fullyConnected = 50;
+dropout = 0.1;
+outDim = 2;
+
+layers = [ ...
+    sequenceInputLayer(inDim)
+    lstmLayer(hiddenUnits1,'OutputMode','sequence')
+   % lstmLayer(hiddenUnits2,'OutputMode','sequence')
+    fullyConnectedLayer(fullyConnected)
+    dropoutLayer(dropout)
+    fullyConnectedLayer(outDim)
+    regressionLayer];
+
+maxEpochs = 60;
+miniBatchSize = 20;
+
+options = trainingOptions('adam', ...
+    'MaxEpochs',maxEpochs, ...
+    'GradientThreshold', 1, ...
+    'MiniBatchSize',miniBatchSize, ...
+    'InitialLearnRate',0.01, ...
+    'LearnRateDropPeriod',150, ...
+    'LearnRateDropFactor',0.1, ...
+    'Plots','training-progress',...
+    'Verbose',0);
+
+net1 = trainNetwork(XTrain1, YTrain1, layers, options);
+net2 = trainNetwork(XTrain2, YTrain2, layers, options);
+
+%%
+YPred1 = predict(net1, XTest, 'MiniBatchSize', 1);
+YPred2 = predict(net2, XTest, 'MiniBatchSize', 1);
+%%
+x1 = (YPred1{1}(1,:)+YPred2{1}(1,:))/2;
+y1 = (YPred1{1}(2,:)+YPred2{1}(2,:))/2;
+a = 1;
+windowSize = 50; 
+b = (1/windowSize)*ones(1,windowSize);
+x1filtered = filter(b,a,x1);
+y1filtered = filter(b,a,y1);
+
+figure
+plot(YTest{1}(1,:), YTest{1}(2,:))
+hold on
+plot(x1filtered,y1filtered);
+legend('Actual','2Predictions_Combined_and_Filtered')
+
+
+%%
+x2 = (YPred1{2}(1,:)+YPred2{2}(1,:))/2;
+y2 = (YPred1{2}(2,:)+YPred2{2}(2,:))/2;
+a = 1;
+windowSize = 50; 
+b = (1/windowSize)*ones(1,windowSize);
+x2filtered = filter(b,a,x2);
+y2filtered = filter(b,a,y2);
+
+figure
+plot(YTest{2}(1,:), YTest{2}(2,:))
+hold on
+plot(x2filtered,y2filtered);
+legend('Actual', '2Predictions_Combined_and_Filtered')
