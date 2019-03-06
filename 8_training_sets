@@ -1,0 +1,243 @@
+clear all; close all
+clc
+
+%% prepare training data
+load('monkeydata_training.mat');
+
+% set random number generator
+rng(2013);
+
+%% shuffle the data
+ix = randperm(length(trial));
+
+%% split into train and test sets
+trainTestSplit = 0.8;
+trainTestSplit2 = 0.7;
+numTrain = trainTestSplit2 * length(trial);
+numTest = length(trial)-trainTestSplit * length(trial);
+t1 = trial(ix(1:10),:);
+t2 = trial(ix(11:20),:);
+t3 = trial(ix(21:30),:);
+t4 = trial(ix(31:40),:);
+t5 = trial(ix(41:50),:);
+t6 = trial(ix(51:60),:);
+t7 = trial(ix(61:70),:);
+t8 = trial(ix(71:80),:);
+
+trainingData1 = trial(ix(1:numTrain),:);
+trainingData2 = trial(ix(11:numTrain+10),:);
+trainingData3 = [t1; t3; t4; t5; t6; t7; t8];
+trainingData4 = [t1; t2; t4; t5; t6; t7; t8];
+trainingData5 = [t1; t2; t3; t5; t6; t7; t8];
+trainingData6 = [t1; t2; t3; t4; t6; t7; t8];
+trainingData7 = [t1; t2; t3; t4; t5; t7; t8];
+trainingData8 = [t1; t2; t3; t4; t5; t6; t8];
+testData = trial(ix(numTrain+11:end),:);
+
+%% training 1
+intermediate = struct2cell(reshape(trainingData1, 1, numTrain * 8));
+XTrain1 = cell(size(intermediate, 3), 1);
+YTrain1 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain1{i} = [];
+    XTrain1{i} = tempX(:,1:end-1);
+    YTrain1{i} = [];
+    YTrain1{i} = tempY(1:2,2:end);
+end
+
+% training 2
+intermediate = struct2cell(reshape(trainingData2, 1, numTrain * 8));
+XTrain2 = cell(size(intermediate, 3), 1);
+YTrain2 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain2{i} = [];
+    XTrain2{i} = tempX(:,1:end-1);
+    YTrain2{i} = [];
+    YTrain2{i} = tempY(1:2,2:end);
+end
+
+% training 3
+intermediate = struct2cell(reshape(trainingData3, 1, numTrain * 8));
+XTrain3 = cell(size(intermediate, 3), 1);
+YTrain3 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain3{i} = [];
+    XTrain3{i} = tempX(:,1:end-1);
+    YTrain3{i} = [];
+    YTrain3{i} = tempY(1:2,2:end);
+end
+
+% training 4
+intermediate = struct2cell(reshape(trainingData4, 1, numTrain * 8));
+XTrain4 = cell(size(intermediate, 3), 1);
+YTrain4 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain4{i} = [];
+    XTrain4{i} = tempX(:,1:end-1);
+    YTrain4{i} = [];
+    YTrain4{i} = tempY(1:2,2:end);
+end
+
+% training 5
+intermediate = struct2cell(reshape(trainingData5, 1, numTrain * 8));
+XTrain5 = cell(size(intermediate, 3), 1);
+YTrain5 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain5{i} = [];
+    XTrain5{i} = tempX(:,1:end-1);
+    YTrain5{i} = [];
+    YTrain5{i} = tempY(1:2,2:end);
+end
+
+% training 6
+intermediate = struct2cell(reshape(trainingData6, 1, numTrain * 8));
+XTrain6 = cell(size(intermediate, 3), 1);
+YTrain6= cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain6{i} = [];
+    XTrain6{i} = tempX(:,1:end-1);
+    YTrain6{i} = [];
+    YTrain6{i} = tempY(1:2,2:end);
+end
+
+% training 7
+intermediate = struct2cell(reshape(trainingData7, 1, numTrain * 8));
+XTrain7 = cell(size(intermediate, 3), 1);
+YTrain7 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain7{i} = [];
+    XTrain7{i} = tempX(:,1:end-1);
+    YTrain7{i} = [];
+    YTrain7{i} = tempY(1:2,2:end);
+end
+
+% training 8
+intermediate = struct2cell(reshape(trainingData8, 1, numTrain * 8));
+XTrain8 = cell(size(intermediate, 3), 1);
+YTrain8 = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTrain8{i} = [];
+    XTrain8{i} = tempX(:,1:end-1);
+    YTrain8{i} = [];
+    YTrain8{i} = tempY(1:2,2:end);
+end
+%%
+intermediate = struct2cell(reshape(testData, 1, numTest * 8));
+
+XTest = cell(size(intermediate, 3), 1);
+YTest = cell(size(intermediate, 3), 1);
+
+for i = 1:size(intermediate, 3)
+    tempX = intermediate{2, :, i};
+    tempY = intermediate{3, :, i};
+    XTest{i} = [];
+    XTest{i} = tempX(:,1:end-1);
+    YTest{i} = [];
+    YTest{i} = tempY(1:2,2:end);
+end
+
+%%  
+
+inDim = 98;
+hiddenUnits1 = 100;
+hiddenUnits2 = 75;
+fullyConnected = 50;
+dropout = 0.1;
+outDim = 2;
+
+layers = [ ...
+    sequenceInputLayer(inDim)
+    lstmLayer(hiddenUnits1,'OutputMode','sequence')
+   % lstmLayer(hiddenUnits2,'OutputMode','sequence')
+    fullyConnectedLayer(fullyConnected)
+    dropoutLayer(dropout)
+    fullyConnectedLayer(outDim)
+    regressionLayer];
+
+maxEpochs = 60;
+miniBatchSize = 20;
+
+options = trainingOptions('adam', ...
+    'MaxEpochs',maxEpochs, ...
+    'GradientThreshold', 1, ...
+    'MiniBatchSize',miniBatchSize, ...
+    'InitialLearnRate',0.01, ...
+    'LearnRateDropPeriod',150, ...
+    'LearnRateDropFactor',0.1, ...
+    'Plots','training-progress',...
+    'Verbose',0);
+
+net1 = trainNetwork(XTrain1, YTrain1, layers, options);
+net2 = trainNetwork(XTrain2, YTrain2, layers, options);
+net3 = trainNetwork(XTrain3, YTrain3, layers, options);
+net4 = trainNetwork(XTrain4, YTrain4, layers, options);
+net5 = trainNetwork(XTrain5, YTrain5, layers, options);
+net6 = trainNetwork(XTrain6, YTrain6, layers, options);
+net7 = trainNetwork(XTrain7, YTrain7, layers, options);
+net8 = trainNetwork(XTrain8, YTrain8, layers, options);
+
+%%
+YPred1 = predict(net1, XTest, 'MiniBatchSize', 1);
+YPred2 = predict(net2, XTest, 'MiniBatchSize', 1);
+YPred3 = predict(net3, XTest, 'MiniBatchSize', 1);
+YPred4 = predict(net4, XTest, 'MiniBatchSize', 1);
+YPred5 = predict(net5, XTest, 'MiniBatchSize', 1);
+YPred6 = predict(net6, XTest, 'MiniBatchSize', 1);
+YPred7 = predict(net7, XTest, 'MiniBatchSize', 1);
+YPred8 = predict(net8, XTest, 'MiniBatchSize', 1);
+
+%%
+x1 = (YPred1{1}(1,:)+YPred2{1}(1,:)+YPred3{1}(1,:)+YPred4{1}(1,:)+YPred5{1}(1,:)+YPred6{1}(1,:)+YPred7{1}(1,:)+YPred8{1}(1,:))/8;
+y1 = (YPred1{1}(2,:)+YPred2{1}(2,:)+YPred3{1}(2,:)+YPred4{1}(2,:)+YPred5{1}(2,:)+YPred6{1}(2,:)+YPred7{1}(2,:)+YPred8{1}(2,:))/8;
+a = 1;
+windowSize = 50; 
+b = (1/windowSize)*ones(1,windowSize);
+x1filtered = filter(b,a,x1);
+y1filtered = filter(b,a,y1);
+
+figure
+plot(YTest{1}(1,:), YTest{1}(2,:));
+hold on
+plot(x1,y1, 'r');
+plot(x1filtered,y1filtered, 'g');
+legend('Actual','Prediction 8 combined averaged training sets', '8 Predictions Combined and Filtered')
+
+
+%%
+x2 = (YPred1{2}(1,:)+YPred2{2}(1,:))/2;
+y2 = (YPred1{2}(2,:)+YPred2{2}(2,:))/2;
+a = 1;
+windowSize = 50; 
+b = (1/windowSize)*ones(1,windowSize);
+x2filtered = filter(b,a,x2);
+y2filtered = filter(b,a,y2);
+
+figure
+plot(YTest{2}(1,:), YTest{2}(2,:))
+hold on
+plot(x2filtered,y2filtered);
+legend('Actual', '2Predictions_Combined_and_Filtered')
