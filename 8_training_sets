@@ -228,8 +228,8 @@ legend('Actual','Prediction 8 combined averaged training sets', '8 Predictions C
 
 
 %%
-x2 = (YPred1{2}(1,:)+YPred2{2}(1,:))/2;
-y2 = (YPred1{2}(2,:)+YPred2{2}(2,:))/2;
+x2 = (YPred1{3}(1,:)+YPred2{3}(1,:)+YPred3{3}(1,:)+YPred4{3}(1,:)+YPred5{3}(1,:)+YPred6{3}(1,:)+YPred7{3}(1,:)+YPred8{3}(1,:))/8;
+y2 = (YPred1{3}(2,:)+YPred2{3}(2,:)+YPred3{3}(2,:)+YPred4{3}(2,:)+YPred5{3}(2,:)+YPred6{3}(2,:)+YPred7{3}(2,:)+YPred8{3}(2,:))/8;
 a = 1;
 windowSize = 50; 
 b = (1/windowSize)*ones(1,windowSize);
@@ -237,7 +237,9 @@ x2filtered = filter(b,a,x2);
 y2filtered = filter(b,a,y2);
 
 figure
-plot(YTest{2}(1,:), YTest{2}(2,:))
+plot(YTest{3}(1,:), YTest{3}(2,:))
 hold on
+plot(x1,y1);
 plot(x2filtered,y2filtered);
-legend('Actual', '2Predictions_Combined_and_Filtered')
+plot(YPred1{3}(1,:),YPred1{3}(2,:));
+legend('Actual','Prediction 8 combined averaged training sets', '8 Predictions Combined and Filtered')
