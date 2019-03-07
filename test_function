@@ -1,0 +1,40 @@
+        intermediate = struct2cell(reshape(test_Data, 1, length(test_Data)));
+
+        XTest = cell(size(intermediate, 3), 1);
+        YTest = cell(size(intermediate, 3), 1);
+
+        for i = 1:size(intermediate, 3)
+            tempX = intermediate{2, :, i};
+            tempY = intermediate{3, :, i};
+            XTest{i} = [];
+            XTest{i} = tempX(:,1:end-1);
+            YTest{i} = [];
+            YTest{i} = tempY(1:2,2:end);
+        end
+        
+        for l = 1:[300,320,340,360,380,400]
+            YPred1 = predict(modelParameters.net1, XTest(1:l), 'MiniBatchSize', 1);
+            YPred2 = predict(modelParameters.net2, XTest(1:l), 'MiniBatchSize', 1);
+            YPred3 = predict(modelParameters.net3, XTest(1:l), 'MiniBatchSize', 1);
+            YPred4 = predict(modelParameters.net4, XTest(1:l), 'MiniBatchSize', 1);
+            YPred5 = predict(modelParameters.net5, XTest(1:l), 'MiniBatchSize', 1);
+            YPred6 = predict(modelParameters.net6, XTest(1:l), 'MiniBatchSize', 1);
+            YPred7 = predict(modelParameters.net7, XTest(1:l), 'MiniBatchSize', 1);
+            YPred8 = predict(modelParameters.net8, XTest(1:l), 'MiniBatchSize', 1);
+        end
+        
+        %
+        x1 = (YPred1{1}(1,:)+YPred2{1}(1,:)+YPred3{1}(1,:)+YPred4{1}(1,:)+YPred5{1}(1,:)+YPred6{1}(1,:)+YPred7{1}(1,:)+YPred8{1}(1,:))/8;
+        y1 = (YPred1{1}(2,:)+YPred2{1}(2,:)+YPred3{1}(2,:)+YPred4{1}(2,:)+YPred5{1}(2,:)+YPred6{1}(2,:)+YPred7{1}(2,:)+YPred8{1}(2,:))/8;
+        a = 1;
+        windowSize = 5; 
+        b = (1/windowSize)*ones(1,windowSize);
+        x1filtered = filter(b,a,x1);
+        y1filtered = filter(b,a,y1);
+  
+  
+  % ... compute position at the given timestep.
+  
+  % Return Value:
+        x = x1filtered(length(x1filtered));
+        y = y1filtered(length(y1filtered));
