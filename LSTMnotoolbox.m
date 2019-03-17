@@ -53,20 +53,20 @@ inputSize = 98;
 hiddenLayers = 100;
 concatLayers = inputSize + hiddenLayers;
 
-forgetWeight = 0.01*randn(hiddenLayers, concatLayers);
-forgetBias = 0.01*randn(hiddenLayers,1);
+forgetWeight = 0.001*randn(hiddenLayers, concatLayers);
+forgetBias = 0.001*randn(hiddenLayers,1);
 
-inputWeight = 0.01*randn(hiddenLayers, concatLayers);
-inputBias = 0.01*randn(hiddenLayers, 1);
+inputWeight = 0.001*randn(hiddenLayers, concatLayers);
+inputBias = 0.001*randn(hiddenLayers, 1);
 
-cellUpdateWeight = 0.01*randn(hiddenLayers, concatLayers);
-cellUpdateBias = 0.01*randn(hiddenLayers,1);
+cellUpdateWeight = 0.001*randn(hiddenLayers, concatLayers);
+cellUpdateBias = 0.001*randn(hiddenLayers,1);
 
-outputWeight = 0.01*randn(hiddenLayers, concatLayers);
-outputBias = 0.01*randn(hiddenLayers,1);
+outputWeight = 0.001*randn(hiddenLayers, concatLayers);
+outputBias = 0.001*randn(hiddenLayers,1);
 
-predictWeight = 0.01*randn(2, hiddenLayers);
-predictBias = 0.01*randn(2, 1);
+predictWeight = 0.001*randn(2, hiddenLayers);
+predictBias = 0.001*randn(2, 1);
 
 LSTM = struct;
 
@@ -114,8 +114,8 @@ LSTM.predictBiasD = zeros(2,1);
 LSTM.predictBiasM = zeros(2,1);
 
 %% Training Loop - batch size 1 (SGD, Adagrad)
-maxEpochs = 10;
-totalLoss = zeros(2,maxEpochs);
+maxEpochs = 50;
+totalLoss = zeros(1,maxEpochs);
 for epoch = 1:maxEpochs
     for trial = 1:length(XTrain)
         % Set t-1 LSTM memory states
@@ -125,9 +125,14 @@ for epoch = 1:maxEpochs
         XTrial = XTrain{trial};
         YTrial = YTrain{trial};
 
-        [loss, hidden, C, LSTM] = completePass(XTrial, YTrial, hidden_init, C_init, LSTM);
-        totalLoss(:,epoch) = loss;
+        [loss,predictStore, hidden, C, LSTM] = completePass(XTrial, YTrial, hidden_init, C_init, LSTM);
+        totalLoss(:,epoch) = 0.5 * (sum(loss).^0.5);
+        
         LSTM = step(LSTM, eta);
+        disp("Epoch:")
+        disp(epoch)
+        disp("Trial:")
+        disp(trial)
     end
 end
 %TEST = XTrain{1};
@@ -185,12 +190,12 @@ function [dhidden_old, dC_old, LSTM] = backward(target, dhidden_next,...
     hidden, predict, LSTM)
 
 % Calculate MSE
-dpredict = (predict - target).^2;
+dpredict = 0.5*(predict - target).^2;
 
 % Backprop error through the network, starting at output
 % Prediction -> output
 LSTM.predictWeightD = LSTM.predictWeightD + (dpredict * hidden');
-LSTM.predictBiasD = LSTM.predictBias + dpredict;
+LSTM.predictBiasD = LSTM.predictBiasD + dpredict;
 
 % hidden + output -> output weight
 dhidden = (LSTM.predictWeight' * dpredict);
@@ -204,7 +209,7 @@ LSTM.outputBiasD = LSTM.outputBiasD + doutput;
 dC = dC_next;
 dC = dC + dhidden .* output .* dtanh(tanh(C));
 dC_bar = dC .* input;
-dc_bar = dtanh(dC_bar) .* dC_bar;
+dC_bar = dtanh(dC_bar) .* dC_bar;
 LSTM.cellUpdateWeightD = (dC_bar * z');
 LSTM.cellUpdateBiasD = LSTM.cellUpdateBiasD + dC_bar;
 
@@ -230,7 +235,7 @@ end
 
 %% Define regime for data/error propogation
 
-function [loss, hiddenStore, CStore, LSTM] = completePass(X, Y, hidden_old, C_old, LSTM)
+function [loss, predictStore, hiddenStore, CStore, LSTM] = completePass(X, Y, hidden_old, C_old, LSTM)
 % Define temp storage vars
 XStore = zeros(length(X(:,1)), length(X(1,:)));
 ZStore = zeros(length(X(:,1)) + LSTM.hiddenSize, length(X(1,:)));
@@ -264,8 +269,8 @@ for t = 2:length(X(1,:))
     [ZStore(:,t), forgetStore(:,t), inputStore(:,t), C_barStore(:,t), CStore(:,t), outputStore(:,t), hiddenStore(:,t), predictStore(:,t)] = ...
     forward(X(:,t), hiddenStore(:,t-1), CStore(:,t-1), LSTM);
     
-    loss = loss +(predictStore(:,t) - Y(:,t)).^2; 
-    disp(t)
+    loss = loss + 0.5*(predictStore(:,t) - Y(:,t)).^2; 
+    %disp(t)
 end
 % zero gradients before backprop 
 hiddenLayers = LSTM.hiddenSize;
@@ -286,7 +291,7 @@ LSTM.predictWeightD = zeros(2, hiddenLayers);
 LSTM.predictBiasD = zeros(2,1);
 
 % zero error to be propogated
-disp('zeroed init!')
+%disp('zeroed init!')
 dhiddenNext = zeros(hiddenLayers,  1);
 dCNext = zeros(hiddenLayers, 1);
 
@@ -298,8 +303,8 @@ for t = length(X(1,:)):-1:2
     %TO DO - clip gradients?
 end
 % Clip gradients to prevent exploding gradients 
-clipUpperThreshold = 10;
-clipLowerThreshold = -10;
+clipUpperThreshold = 5;
+clipLowerThreshold = -5;
 
 LSTM.forgetWeightD = min(LSTM.forgetWeightD, clipUpperThreshold);
 LSTM.forgetWeightD = max(LSTM.forgetWeightD, clipLowerThreshold);
