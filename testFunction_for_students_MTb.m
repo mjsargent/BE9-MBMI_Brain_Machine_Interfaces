@@ -6,7 +6,7 @@
 
 function RMSE = testFunction_for_students_MTb(teamName)
 
-load monkeydata0.mat
+load monkeydata_training.mat
 
 % Set random number generator
 rng(2013);
@@ -15,8 +15,8 @@ ix = randperm(length(trial));
 addpath(teamName);
 
 % Select training and testing data (you can choose to split your data in a different way if you wish)
-trainingData = trial(ix(1:50),:);
-testData = trial(ix(51:end),:);
+trainingData = trial((1:80),:);
+testData = trial((81:end),:);
 
 fprintf('Testing the continuous position estimator...')
 
@@ -34,7 +34,7 @@ modelParameters = positionEstimatorTraining(trainingData);
 for tr=1:size(testData,1)
     display(['Decoding block ',num2str(tr),' out of ',num2str(size(testData,1))]);
     pause(0.001)
-    for direc=randperm(8) 
+    for direc=randperm(8)
         decodedHandPos = [];
 
         times=320:20:size(testData(tr,direc).spikes,2);
