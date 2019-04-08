@@ -1,29 +1,3 @@
-# README #
+Imported from Bitbucket
 
-This README would normally document whatever steps are necessary to get your application up and running.
-
-### What is this repository for? ###
-
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+MATLAB scripts for estimating the position of a monkey hand given neuronal firing patterns from its motor cortex. LSTM approach - LSTM classifer to determine the inital angle, use angle to select a pair of LSTMs to perform time-series regression and estimate the hand movements. MSE around 25, could probably get lower by grid searching hyperparameters 
